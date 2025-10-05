@@ -1,0 +1,11 @@
+# Node.js
+agendamento-backend/node_modules/
+agendamento-backend/.env
+
+# React
+agendamento-frontend/node_modules/
+agendamento-frontend/build/
+
+# Geral
+.DS_Store
+.env
