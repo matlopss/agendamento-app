@@ -21,3 +21,6 @@ app.listen(PORT, () => {
 
 const servicoRoutes = require('./routes/servicoRoutes');
 app.use('/servicos', servicoRoutes);
+
+const profissionalRoutes = require('./routes/profissionalRoutes');
+app.use('/profissionais', profissionalRoutes);
