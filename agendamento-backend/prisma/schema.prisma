@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Cliente {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  telefone     String
+  email        String?
+  role         Role          @default(USER)
+  agendamentos Agendamento[]
+}
+
+model Profissional {
+  id             Int              @id @default(autoincrement())
+  nome           String
+  horariosPadrao HorarioPadrao[]
+  excecoes       HorarioExcecao[]
+  horariosGerado HorarioGerado[]
+  servicos       Servico[]
+}
+
+model Servico {
+  id             Int           @id @default(autoincrement())
+  nome           String
+  duracaoMin     Int
+  preco          Float
+  profissionalId Int
+  profissional   Profissional @relation(fields: [profissionalId], references: [id])
+  agendamentos   Agendamento[]
+}
+
+model HorarioPadrao {
+  id             Int           @id @default(autoincrement())
+  diaSemana      Int           // 0 = domingo, 1 = segunda, ..., 6 = sábado
+  horaInicio     String
+  horaFim        String
+  profissionalId Int
+  profissional   Profissional @relation(fields: [profissionalId], references: [id])
+}
+
+model HorarioExcecao {
+  id             Int           @id @default(autoincrement())
+  data           DateTime
+  tipo           String        // "bloqueio" ou "alteracao"
+  horaInicio     String?
+  horaFim        String?
+  motivo         String?
+  profissionalId Int
+  profissional   Profissional @relation(fields: [profissionalId], references: [id])
+}
+
+model HorarioGerado {
+  id             Int           @id @default(autoincrement())
+  dataHora       DateTime
+  disponivel     Boolean       @default(true)
+  reservadoPara  Int?
+  profissionalId Int
+  profissional   Profissional @relation(fields: [profissionalId], references: [id])
+
+  agendamentos   Agendamento[]  // ← campo inverso adicionado
+}
+
+model Agendamento {
+  id             Int           @id @default(autoincrement())
+  clienteId      Int
+  cliente        Cliente       @relation(fields: [clienteId], references: [id])
+  servicoId      Int
+  servico        Servico       @relation(fields: [servicoId], references: [id])
+  horarioId      Int
+  horario        HorarioGerado @relation(fields: [horarioId], references: [id])
+  dataHora       DateTime
+  status         String        // "ativo", "cancelado"
+}
